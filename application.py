@@ -22,7 +22,7 @@ except pymysql.MySQLError as e:
 
 
 # Create the Flask application object.
-app = Flask(__name__)
+application = app = Flask(__name__)
 
 CORS(app)
 

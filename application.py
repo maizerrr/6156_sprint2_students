@@ -4,13 +4,13 @@ from flask_cors import CORS
 import json
 import sys
 import pymysql
-import rds_config
+import os
 
 # Initial DB connection
 rds_host  = "sprint1studentsdb6156.cq0pqafrrlui.us-east-1.rds.amazonaws.com"
-name = rds_config.db_username
-password = rds_config.db_password
-db_name = rds_config.db_name
+name = os.environ['db_username']
+password = os.environ['db_password']
+db_name = os.environ['db_name']
 
 try:
     conn = pymysql.connect(host=rds_host, user=name, passwd=password, db=db_name, connect_timeout=20)
@@ -309,4 +309,8 @@ def delete_projects(sid, crn=None, pid=None):
 
 # Start flask server
 if __name__ == "__main__":
-    app.run()
+    try:
+        port = os.environ['port']
+    except:
+        port = 5000
+    app.run(port=port)

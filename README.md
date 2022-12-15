@@ -8,7 +8,7 @@ Daolong Liu
 Yuming Tian
 
 ## Endpoint
-N/A
+6156sprint2students-env-2.eba-xmbgar3z.us-east-1.elasticbeanstalk.com
 
 ## RESSTful APIs
 - /students

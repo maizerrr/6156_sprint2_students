@@ -12,19 +12,22 @@ name = os.environ['db_username']
 password = os.environ['db_password']
 db_name = os.environ['db_name']
 
-try:
-    conn = pymysql.connect(host=rds_host, user=name, passwd=password, db=db_name, connect_timeout=20)
-    print("SUCCESS: Connection to RDS MySQL instance succeeded.")
-except pymysql.MySQLError as e:
-    print("ERROR: Unexpected error: Could not connect to MySQL instance.")
-    print(e)
-    sys.exit()
+def connection():
+    try:
+        conn = pymysql.connect(host=rds_host, user=name, passwd=password, db=db_name, connect_timeout=20)
+        print("SUCCESS: Connection to RDS MySQL instance succeeded.")
+    except pymysql.MySQLError as e:
+        print("ERROR: Unexpected error: Could not connect to MySQL instance.")
+        print(e)
+        sys.exit()
+    return conn
 
 
 # Create the Flask application object.
 application = app = Flask(__name__)
 
 CORS(app)
+conn = connection()
 
 
 @app.get("/")
@@ -42,6 +45,8 @@ def get_health():
 @app.route("/students", methods=["GET"])
 def all_students():
     response = []
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         cur.execute("SELECT studentID FROM Students")
         for row in cur:
@@ -69,6 +74,8 @@ def one_student(sid):
 def get_one_student(sid):
     sql = "SELECT * FROM Students WHERE studentID = %s"
     response = None
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         cur.execute(sql, (sid,))
         for row in cur:
@@ -97,6 +104,8 @@ def insert_one_student(sid, data):
         major = data["major"]
     if "interests" in data.keys():
         interests = data["interests"]
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         try:
             cur.execute(sql, (sid, first_name, last_name, email, phone, major, interests,))
@@ -117,6 +126,8 @@ def delete_one_student(sid):
     sql1 = "DELETE FROM SelectProject WHERE studentID = %s;"
     sql2 = "DELETE FROM EnrollCourse WHERE studentID = %s;"
     sql3 = "DELETE FROM Students WHERE studentID = %s;"
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         try:
             cur.execute(sql1, (sid,))
@@ -159,6 +170,8 @@ def courses(sid):
 def get_courses(sid):
     sql = "SELECT CRN from EnrollCourse WHERE studentID = %s;"
     response = []
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         cur.execute(sql, (sid,))
         for row in cur:
@@ -173,6 +186,8 @@ def get_courses(sid):
 def insert_one_course(sid, crn):
     sql = "INSERT INTO EnrollCourse VALUES (%s, %s);"
     response = None
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         try:
             cur.execute(sql, (sid, crn,))
@@ -200,6 +215,8 @@ def delete_courses(sid, crn=None):
     if response.status == '500 INTERNAL SERVER ERROR':
         return response
 
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         try:
             if crn is None:
@@ -248,6 +265,8 @@ def get_projects(sid, crn=None):
     else:
         sql = "SELECT projectID from SelectProject WHERE studentID = %s and CRN = %s;"
     response = []
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         if crn is None:
             cur.execute(sql, (sid,))
@@ -265,6 +284,8 @@ def get_projects(sid, crn=None):
 def insert_one_project(sid, crn, pid):
     sql = "INSERT INTO SelectProject VALUES (%s, %s, %s);"
     response = None
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         try:
             cur.execute(sql, (sid, crn, pid,))
@@ -283,6 +304,8 @@ def insert_one_project(sid, crn, pid):
 
 def delete_projects(sid, crn=None, pid=None):
     response = None
+    if not conn.open:
+        conn = connection()
     with conn.cursor() as cur:
         try:
             if crn is None and pid is None:

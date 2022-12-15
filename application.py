@@ -87,7 +87,7 @@ def get_one_student(sid):
 
 def insert_one_student(sid, data):
     response = None
-    sql = "INSERT INTO Students VALUES (%s, %s, %s, %s, %s);"
+    sql = "INSERT INTO Students VALUES (%s, %s, %s, %s, %s, %s, %s);"
     first_name, last_name, email, phone, major, interests = None, None, None, None, None, None
     if "FirstName" in data.keys():
         first_name = data["FirstName"]
@@ -149,7 +149,7 @@ def courses(sid):
     crn = None
     if "crn" in request.args.keys():
         crn = request.args["crn"]
-    elif "crn" in request.form.keys():
+    if "crn" in request.form.keys():
         crn = request.form["crn"]
 
     if request.method == "GET":

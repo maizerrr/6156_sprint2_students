@@ -27,3 +27,33 @@ Yuming Tian
   - DELETE: remove a project from the student's todo list
 - /students/search [not implemented yet]
   - POST: search students with the given query/filter
+
+## POST request examples
+**/students/{sid}**
+```
+# sid must be provided in path
+
+{
+    "FirstName": "John",
+    "LastName": "Smith",
+    "email": "js1234@columbia.edu",
+    "phone": "1234567890",
+    "major": "Computer Science",
+    "interests": "nlp"
+}
+```
+
+**/students/{sid}/coruses**
+```
+{
+    "crn": "11038"
+}
+```
+
+**/students/{sid}/projects**
+```
+{
+    "crn": "11038",
+    "pid": "aws_lions"
+}
+```

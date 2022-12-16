@@ -159,8 +159,9 @@ def courses(sid):
     elif request.method == "DELETE":
         return delete_courses(sid, crn)
     else:
-        response = { 'body': "Request method {} not allowed".format(request.method) }
-        return Response(json.dumps(response), status=500, content_type="application/json")
+        # response = { 'body': "Request method {} not allowed".format(request.method) }
+        # return Response(json.dumps(response), status=500, content_type="application/json")
+        return request
 
 def get_courses(sid):
     sql = "SELECT CRN from EnrollCourse WHERE studentID = %s;"

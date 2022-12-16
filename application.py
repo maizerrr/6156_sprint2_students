@@ -244,7 +244,7 @@ def projects(sid):
     elif request.method == "POST" and crn is not None and pid is not None:
         return insert_one_project(sid, crn, pid)
     elif request.method == "DELETE":
-        return delete_courses(sid, crn, pid)
+        return delete_projects(sid, crn, pid)
     else:
         response = { 'body': "Request method {} not allowed".format(request.method) }
         return Response(json.dumps(response), status=500, content_type="application/json")

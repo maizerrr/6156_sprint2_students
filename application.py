@@ -147,10 +147,8 @@ def delete_one_student(sid):
 @app.route("/students/<sid>/courses", methods=["GET", "POST", "DELETE"])
 def courses(sid):
     crn = None
-    if "crn" in request.args.keys():
-        crn = request.args["crn"]
-    if "crn" in request.form.keys():
-        crn = request.form["crn"]
+    if "crn" in request.values.keys():
+        crn = request.values["crn"]
 
     if request.method == "GET":
         return get_courses(sid)
@@ -159,9 +157,8 @@ def courses(sid):
     elif request.method == "DELETE":
         return delete_courses(sid, crn)
     else:
-        # response = { 'body': "Request method {} not allowed".format(request.method) }
-        # return Response(json.dumps(response), status=500, content_type="application/json")
-        return request
+        response = { 'body': "Request method {} not allowed".format(request.method) }
+        return Response(json.dumps(response), status=500, content_type="application/json")
 
 def get_courses(sid):
     sql = "SELECT CRN from EnrollCourse WHERE studentID = %s;"

@@ -240,7 +240,7 @@ def projects(sid):
         pid = request.form["pid"]
 
     if request.method == "GET":
-        return get_projects(sid)
+        return get_projects(sid, crn)
     elif request.method == "POST" and crn is not None and pid is not None:
         return insert_one_project(sid, crn, pid)
     elif request.method == "DELETE":

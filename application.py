@@ -35,7 +35,10 @@ def get_health():
     msg = {
         "name": "E6156-sprint2-students",
         "health": "Good",
-        "at time": t
+        "at time": t,
+        'links': {
+            'list all students': 'GET:/students'
+        }
     }
     return Response(json.dumps(msg), status=200, content_type="application/json")
 
@@ -51,7 +54,12 @@ def all_students():
             response.append(row)
     conn.commit()
     response = {
-        'body': list( map(str, response) )
+        'body': list( map(str, response) ),
+        'links': {
+            'show detail of one student': 'GET:/students/<sid>',
+            'add or update info of one student': 'POST:/students/<sid>',
+            'delete one student': 'DELETE:/students/<sid>'
+        }
     }
     print("SUCCESS: {} item(s) retrieved from DB".format(len(response)))
     return Response(json.dumps(response), status=200, content_type="application/json")
@@ -82,7 +90,17 @@ def get_one_student(sid):
     if response is None:
         response = { 'body': "No student with sid={} found".format(sid) }
         return Response(json.dumps(response), status=500, content_type="application/json")
-    response = { 'body': response }
+    response = { 
+        'body': response,
+        'links': {
+            'get courses taken': 'GET:/students/<sid>/courses',
+            'add one course': 'POST:/students/<sid>/courses',
+            'delete one course': 'DELETE:/students/<sid>/courses?crn=<crn>',
+            'get projects': 'GET:/students/<sid>/projects',
+            'add one project': 'POST:/students/<sid>/projects',
+            'delete one project': 'DELETE:/students/<sid>/projects?pid=<pid>',
+        }
+    }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
 def insert_one_student(sid, data):
@@ -115,7 +133,17 @@ def insert_one_student(sid, data):
             print("ERROR: Cannot insert {} into Students table".format(sid))
             return Response(json.dumps(response), status=500, content_type="application/json")
     conn.commit()
-    response = { 'body': response }
+    response = { 
+        'body': response,
+        'links': {
+            'get courses taken': 'GET:/students/<sid>/courses',
+            'add one course': 'POST:/students/<sid>/courses',
+            'delete one course': 'DELETE:/students/<sid>/courses?crn=<crn>',
+            'get projects': 'GET:/students/<sid>/projects',
+            'add one project': 'POST:/students/<sid>/projects',
+            'delete one project': 'DELETE:/students/<sid>/projects?pid=<pid>',
+        }
+    }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
 def delete_one_student(sid):
@@ -140,7 +168,17 @@ def delete_one_student(sid):
             }
             return Response(json.dumps(response), status=500, content_type="application/json")
     conn.commit()
-    response = { 'body': response }
+    response = { 
+        'body': response,
+        'links': {
+            'get courses taken': 'GET:/students/<sid>/courses',
+            'add one course': 'POST:/students/<sid>/courses',
+            'delete one course': 'DELETE:/students/<sid>/courses?crn=<crn>',
+            'get projects': 'GET:/students/<sid>/projects',
+            'add one project': 'POST:/students/<sid>/projects',
+            'delete one project': 'DELETE:/students/<sid>/projects?pid=<pid>',
+        }
+    }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
 
@@ -171,7 +209,10 @@ def get_courses(sid):
     conn.commit()
     print("SUCCESS: {} item(s) retrieved from DB".format(len(response)))
     response = {
-        'body': list( map(str, response) )
+        'body': list( map(str, response) ),
+        'links': {
+            'get projects from this course': 'GET:/students/<sid>/projects?crn=<crn>'
+        }
     }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
@@ -192,7 +233,12 @@ def insert_one_course(sid, crn):
             }
             return Response(json.dumps(response), status=500, content_type="application/json")
     conn.commit()
-    response = { 'body': response }
+    response = { 
+        'body': response,
+        'links': {
+            'get projects from this course': 'GET:/students/<sid>/projects?crn=<crn>'
+        }
+    }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
 def delete_courses(sid, crn=None):
@@ -223,7 +269,12 @@ def delete_courses(sid, crn=None):
             }
             return Response(json.dumps(response), status=500, content_type="application/json")
     conn.commit()
-    response = { 'body': response }
+    response = { 
+        'body': response,
+        'links': {
+            'get projects from this course': 'GET:/students/<sid>/projects?crn=<crn>'
+        }
+    }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
 
@@ -266,7 +317,8 @@ def get_projects(sid, crn=None):
     conn.commit()
     print("SUCCESS: {} item(s) retrieved from DB".format(len(response)))
     response = {
-        'body': list( map(str, response) )
+        'body': list( map(str, response) ),
+        'links': {}
     }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
@@ -287,7 +339,7 @@ def insert_one_project(sid, crn, pid):
             }
             return Response(json.dumps(response), status=500, content_type="application/json")
     conn.commit()
-    response = { 'body': response }
+    response = { 'body': response, 'links': {} }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
 def delete_projects(sid, crn=None, pid=None):
@@ -313,7 +365,7 @@ def delete_projects(sid, crn=None, pid=None):
             }
             return Response(json.dumps(response), status=500, content_type="application/json")
     conn.commit()
-    response = { 'body': response }
+    response = { 'body': response, 'links': {} }
     return Response(json.dumps(response), status=200, content_type="application/json")
 
 

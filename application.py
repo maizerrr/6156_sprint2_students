@@ -36,9 +36,13 @@ def get_health():
         "name": "E6156-sprint2-students",
         "health": "Good",
         "at time": t,
-        'links': {
-            'list all students': 'GET:/students'
-        }
+        "links": [
+            {
+                "href": "/students",
+                "rel": "list all students",
+                "type": "GET"
+            }
+        ]
     }
     return Response(json.dumps(msg), status=200, content_type="application/json")
 
@@ -54,15 +58,32 @@ def all_students():
             response.append(row)
     conn.commit()
     response = {
-        'body': list( map(str, response) ),
-        'links': {
-            'show detail of one student': 'GET:/students/<sid>',
-            'add or update info of one student': 'POST:/students/<sid>',
-            'delete one student': 'DELETE:/students/<sid>'
-        }
+        "body": paginator( request, list(map(str, response)) ),
+        "links": [
+            {
+                "href": "/students",
+                "rel": "self",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "show one student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "add or update one student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "remove one student",
+                "type": "DELETE"
+            },
+        ]
     }
     print("SUCCESS: {} item(s) retrieved from DB".format(len(response)))
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 
 @app.route("/students/<sid>", methods=["GET", "POST", "DELETE"])
@@ -75,7 +96,7 @@ def one_student(sid):
         return delete_one_student(sid)
     else:
         response = { 'body': "Request method {} not allowed".format(request.method) }
-        return Response(json.dumps(response), status=500, content_type="application/json")
+        return _Error(response)
 
 def get_one_student(sid):
     sql = "SELECT * FROM Students WHERE studentID = %s"
@@ -89,19 +110,58 @@ def get_one_student(sid):
     conn.commit()
     if response is None:
         response = { 'body': "No student with sid={} found".format(sid) }
-        return Response(json.dumps(response), status=500, content_type="application/json")
+        return _Error(response)
     response = { 
-        'body': response,
-        'links': {
-            'get courses taken': 'GET:/students/<sid>/courses',
-            'add one course': 'POST:/students/<sid>/courses',
-            'delete one course': 'DELETE:/students/<sid>/courses?crn=<crn>',
-            'get projects': 'GET:/students/<sid>/projects',
-            'add one project': 'POST:/students/<sid>/projects',
-            'delete one project': 'DELETE:/students/<sid>/projects?pid=<pid>',
-        }
+        "body": response,
+        "links": [
+            {
+                "href": "/students/<sid>",
+                "rel": "self",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "add or update one student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "remove one student",
+                "type": "DELETE"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "show courses taken by this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "add or update one course taken by this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "remove one course taken by this student",
+                "type": "DELETE"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "show projects of this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "add or update one project of this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "remove one project of this student",
+                "type": "DELETE"
+            }
+        ]
     }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 def insert_one_student(sid, data):
     response = None
@@ -131,20 +191,59 @@ def insert_one_student(sid, data):
                 'error': str(e)
             }
             print("ERROR: Cannot insert {} into Students table".format(sid))
-            return Response(json.dumps(response), status=500, content_type="application/json")
+            return _Error(response)
     conn.commit()
     response = { 
-        'body': response,
-        'links': {
-            'get courses taken': 'GET:/students/<sid>/courses',
-            'add one course': 'POST:/students/<sid>/courses',
-            'delete one course': 'DELETE:/students/<sid>/courses?crn=<crn>',
-            'get projects': 'GET:/students/<sid>/projects',
-            'add one project': 'POST:/students/<sid>/projects',
-            'delete one project': 'DELETE:/students/<sid>/projects?pid=<pid>',
-        }
+        "body": response,
+        "links": [
+            {
+                "href": "/students/<sid>",
+                "rel": "show one student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "self",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "remove one student",
+                "type": "DELETE"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "show courses taken by this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "add or update one course taken by this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "remove one course taken by this student",
+                "type": "DELETE"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "show projects of this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "add or update one project of this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "remove one project of this student",
+                "type": "DELETE"
+            }
+        ]
     }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 def delete_one_student(sid):
     sql1 = "DELETE FROM SelectProject WHERE studentID = %s;"
@@ -166,20 +265,59 @@ def delete_one_student(sid):
                 'message': "Cannot delete {} from Students table".format(sid),
                 'error': str(e)
             }
-            return Response(json.dumps(response), status=500, content_type="application/json")
+            return _Error(response)
     conn.commit()
     response = { 
-        'body': response,
-        'links': {
-            'get courses taken': 'GET:/students/<sid>/courses',
-            'add one course': 'POST:/students/<sid>/courses',
-            'delete one course': 'DELETE:/students/<sid>/courses?crn=<crn>',
-            'get projects': 'GET:/students/<sid>/projects',
-            'add one project': 'POST:/students/<sid>/projects',
-            'delete one project': 'DELETE:/students/<sid>/projects?pid=<pid>',
-        }
+        "body": response,
+        "links": [
+            {
+                "href": "/students/<sid>",
+                "rel": "show one student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "add or update one student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>",
+                "rel": "self",
+                "type": "DELETE"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "show courses taken by this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "add or update one course taken by this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "remove one course taken by this student",
+                "type": "DELETE"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "show projects of this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "add or update one project of this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "remove one project of this student",
+                "type": "DELETE"
+            }
+        ]
     }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 
 @app.route("/students/<sid>/courses", methods=["GET", "POST", "DELETE"])
@@ -209,12 +347,26 @@ def get_courses(sid):
     conn.commit()
     print("SUCCESS: {} item(s) retrieved from DB".format(len(response)))
     response = {
-        'body': list( map(str, response) ),
-        'links': {
-            'get projects from this course': 'GET:/students/<sid>/projects?crn=<crn>'
-        }
+        "body": paginator(request, list(map(str, response)) ),
+        "links": [
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "self",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "add or update one course taken by this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "remove one course taken by this student",
+                "type": "DELETE"
+            }
+        ]
     }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 def insert_one_course(sid, crn):
     sql = "INSERT INTO EnrollCourse VALUES (%s, %s);"
@@ -231,15 +383,29 @@ def insert_one_course(sid, crn):
                 'message': "Cannot insert ({}, {}) into EnrollCourse table".format(sid, crn),
                 'error': str(e)
             }
-            return Response(json.dumps(response), status=500, content_type="application/json")
+            return _Error(response)
     conn.commit()
     response = { 
-        'body': response,
-        'links': {
-            'get projects from this course': 'GET:/students/<sid>/projects?crn=<crn>'
-        }
+        "body": response,
+        "links": [
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "show courses taken by this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "self",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "remove one course taken by this student",
+                "type": "DELETE"
+            }
+        ]
     }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 def delete_courses(sid, crn=None):
     if crn is None:
@@ -267,15 +433,29 @@ def delete_courses(sid, crn=None):
                 'message': "Cannot delete {} from EnrollCourse table".format(sid),
                 'error': str(e)
             }
-            return Response(json.dumps(response), status=500, content_type="application/json")
+            return _Error(response)
     conn.commit()
     response = { 
-        'body': response,
-        'links': {
-            'get projects from this course': 'GET:/students/<sid>/projects?crn=<crn>'
-        }
+        "body": response,
+        "links": [
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "show courses taken by this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "add or update one course taken by this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/courses",
+                "rel": "self",
+                "type": "DELETE"
+            }
+        ]
     }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 
 @app.route("/students/<sid>/projects", methods=["GET", "POST", "DELETE"])
@@ -298,7 +478,7 @@ def projects(sid):
         return delete_projects(sid, crn, pid)
     else:
         response = { 'body': "Request method {} not allowed".format(request.method) }
-        return Response(json.dumps(response), status=500, content_type="application/json")
+        return _Error(response)
 
 def get_projects(sid, crn=None):
     if crn is None:
@@ -317,10 +497,26 @@ def get_projects(sid, crn=None):
     conn.commit()
     print("SUCCESS: {} item(s) retrieved from DB".format(len(response)))
     response = {
-        'body': list( map(str, response) ),
-        'links': {}
+        "body": paginator( request, list(map(str, response)) ),
+        "links": [
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "self",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "add or update one project of this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "remove one project of this student",
+                "type": "DELETE"
+            }
+        ]
     }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    return _Success(response)
 
 def insert_one_project(sid, crn, pid):
     sql = "INSERT INTO SelectProject VALUES (%s, %s, %s);"
@@ -337,10 +533,29 @@ def insert_one_project(sid, crn, pid):
                 'message': "Cannot insert ({}, {}, {}) into SelectProject table".format(sid, crn, pid),
                 'error': str(e)
             }
-            return Response(json.dumps(response), status=500, content_type="application/json")
+            return _Error(response)
     conn.commit()
-    response = { 'body': response, 'links': {} }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    response = { 
+        "body": response, 
+        "links": [
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "show projects of this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "self",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "remove one project of this student",
+                "type": "DELETE"
+            }
+        ]
+    }
+    return _Success(response)
 
 def delete_projects(sid, crn=None, pid=None):
     response = None
@@ -363,10 +578,57 @@ def delete_projects(sid, crn=None, pid=None):
                 'message': "Cannot delete {} from EnrollCourse table".format(sid),
                 'error': str(e)
             }
-            return Response(json.dumps(response), status=500, content_type="application/json")
+            return _Error(response)
     conn.commit()
-    response = { 'body': response, 'links': {} }
-    return Response(json.dumps(response), status=200, content_type="application/json")
+    response = { 
+        "body": response, 
+        "links": [
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "show projects of this student",
+                "type": "GET"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "add or update one project of this student",
+                "type": "POST"
+            },
+            {
+                "href": "/students/<sid>/projects",
+                "rel": "self",
+                "type": "DELETE"
+            }
+        ]
+    }
+    return _Success(response)
+
+
+# helper functions
+def _Success(msg):
+    res = Response(json.dumps(msg), status=200, content_type="application/json")
+    res.headers["Access-Control-Allow-Origin"] = "*"
+    res.headers["Access-Control-Allow-Headers"] = "*"
+    res.headers["Access-Control-Allow-Methods"] = "*"
+    return res
+
+def _Error(msg, status=500):
+    res = Response(json.dumps(msg), status=status, content_type="application/json")
+    res.headers["Access-Control-Allow-Origin"] = "*"
+    res.headers["Access-Control-Allow-Headers"] = "*"
+    res.headers["Access-Control-Allow-Methods"] = "*"
+    return res
+
+def paginator(query, data):
+    if type(data) != type(['','']):
+        return data
+    size = len(data)
+    offset = 0
+    if 'size' in query.values:
+        size = int(query.values['size'])
+    if 'offset' in query.values:
+        offset = int(query.values['offset'])
+    return data[offset:offset+size]
+
 
 
 # Start flask server

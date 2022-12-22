@@ -4,13 +4,13 @@ microservice of students
  - implemented CI/CD
 
 ## Contributors
-Daolong Liu
+Daolong Liu, 
 Yuming Tian
 
 ## Endpoint
 6156sprint2students-env-2.eba-xmbgar3z.us-east-1.elasticbeanstalk.com
 
-## RESSTful APIs
+## RESTful APIs
 - /students
   - GET: list all student ids in the database
 - /students/{sid}
